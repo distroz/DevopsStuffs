@@ -28,6 +28,8 @@ sudo systemctl stop firewalld.service
 sudo sysctl -a | grep net.bridge.bridge-nf-call-iptables
 
 yum install yum-utils -y
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 _____________________________________________________________
 
 kubectl config set-cluster kubectl-prod --server=https://ip --certificate-authority=~/.kube/kubectl-prod.ca.crt
