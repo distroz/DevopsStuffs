@@ -23,6 +23,9 @@ sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysc
  sudo setenforce 0 (for current session)
 sudo systemctl stop firewalld.service
  sudo systemctl disable firewalld.service
+ sudo modprobe br_netfilter
+ lsmod | grep br_netfilter
+sudo sysctl -a | grep net.bridge.bridge-nf-call-iptables
 _____________________________________________________________
 
 kubectl config set-cluster kubectl-prod --server=https://ip --certificate-authority=~/.kube/kubectl-prod.ca.crt
