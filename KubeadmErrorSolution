@@ -26,6 +26,8 @@ sudo systemctl stop firewalld.service
  sudo modprobe br_netfilter
  lsmod | grep br_netfilter
 sudo sysctl -a | grep net.bridge.bridge-nf-call-iptables
+
+yum install yum-utils -y
 _____________________________________________________________
 
 kubectl config set-cluster kubectl-prod --server=https://ip --certificate-authority=~/.kube/kubectl-prod.ca.crt
