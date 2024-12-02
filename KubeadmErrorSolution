@@ -3,3 +3,18 @@ WARNING: Couldn't create the interface used for talking to the container runtime
 
 Edit Containerd configuration: Update the /etc/containerd/config.toml file to comment out or remove the disabled_plugins setting for “cri”.
 # disabled_plugins = ["cri"]
+
+
+# kubeadm-config.yaml
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta4
+kubernetesVersion: v1.21.0
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd
+
+kubeadm init --config kubeadm-config.yaml
+
+swapoff -a
+kubectl config set-cluster kubectl-prod --server=https://ip --certificate-authority=~/.kube/kubectl-prod.ca.crt
