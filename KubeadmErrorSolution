@@ -22,7 +22,7 @@ cat /etc/sysconfig/selinux | grep SELINUX=
 sudo sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
  sudo setenforce 0 (for current session)
 sudo systemctl stop firewalld.service
-
+ sudo systemctl disable firewalld.service
 _____________________________________________________________
 
 kubectl config set-cluster kubectl-prod --server=https://ip --certificate-authority=~/.kube/kubectl-prod.ca.crt
