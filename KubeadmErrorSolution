@@ -1,0 +1,5 @@
+sudo kubeadm init
+WARNING: Couldn't create the interface used for talking to the container runtime: failed to create new CRI runtime service: validate service connection: validate CRI v1 runtime API for endpoint "unix:///var/run/containerd/containerd.sock": rpc error: code = Unimplemented desc = unknown service runtime.v1.RuntimeService
+
+Edit Containerd configuration: Update the /etc/containerd/config.toml file to comment out or remove the disabled_plugins setting for “cri”.
+# disabled_plugins = ["cri"]
