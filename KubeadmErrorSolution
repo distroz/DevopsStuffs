@@ -17,4 +17,5 @@ cgroupDriver: systemd
 kubeadm init --config kubeadm-config.yaml
 
 swapoff -a
+sudo sed -i '/swap/s/^\(.*\)$/#\1/g' /etc/fstab
 kubectl config set-cluster kubectl-prod --server=https://ip --certificate-authority=~/.kube/kubectl-prod.ca.crt
