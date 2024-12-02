@@ -46,6 +46,24 @@ kubectl get nodes
 Google=>kubernetes pod networking
 kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubectl get nodes (should be ready now)
+kubectl get pods -A
+cat > pod1.yaml
+kubectl create -f pod1.yaml
+kubectl get pod (will be in pending state forever because of taint)
+kubectl get nodes
+kubectl describe node master1.example.com | grep taint
+kubectl delete -f pod1.yaml
+
+check the script and run it on worker nodes
+
+kubectl get node
+
+yum install bash-completion
+source /usr/share/bash-completion/bash_completion
+echo 'source < (kubectl completion bash)' >>~/.bashrc
+kubectl completion bash > /etc/bash_completion.d/kubectl
+
+
 
 
 
