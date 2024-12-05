@@ -6,7 +6,16 @@ Edit Containerd configuration: Update the /etc/containerd/config.toml file to co
 it may be empty then also comment out and retry kubeadm init.
 For reverting back all changes made by kubeadm init=> kubeadm reset
 ______________________________________________________
-
+memcache error: could not connect to ip:6443 port
+kubectl get nodes show this error.
+Solution:
+sudo apt install strace
+sudo -i
+swapoff -a (do it as root user)
+exit
+strace -eopenat kubectl version
+then try kubectl get nodes
+________________________________________________________
 # kubeadm-config.yaml
 kind: ClusterConfiguration
 apiVersion: kubeadm.k8s.io/v1beta4
@@ -82,6 +91,7 @@ yum install bash-completion
 source /usr/share/bash-completion/bash_completion
 echo 'source < (kubectl completion bash)' >>~/.bashrc
 kubectl completion bash > /etc/bash_completion.d/kubectl
+
 
 
 
