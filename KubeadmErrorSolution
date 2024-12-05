@@ -9,12 +9,18 @@ ______________________________________________________
 memcache error: could not connect to ip:6443 port
 kubectl get nodes show this error.
 Solution:
+sudo kubeadm init --control-plane-endpoint 192.168.122.6 (your VM NAT ip)
 sudo apt install strace
 sudo -i
 swapoff -a (do it as root user)
 exit
 strace -eopenat kubectl version
 then try kubectl get nodes
+multiple times error comes then 
+sudo swapoff -a run it multiple times
+
+
+
 ________________________________________________________
 # kubeadm-config.yaml
 kind: ClusterConfiguration
