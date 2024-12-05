@@ -1,0 +1,9 @@
+---
+- name: Kube Setup
+  hosts: kubeservers
+  #ansible_become_user: root
+  #ansible_become_password: shivam
+  #become: yes
+  tasks:
+  - name: sending public key
+    ping:

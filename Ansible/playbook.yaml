@@ -1,0 +1,10 @@
+---
+- name: Kube Setup
+  hosts: kube01
+  tasks:
+  - name: sending public key
+    copy:
+      src: id_rsa.pub
+      dest: /home/shivam/.ssh/id_rsa.pub
+      owner: shivam
+      group: shivam

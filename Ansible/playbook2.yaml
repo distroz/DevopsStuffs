@@ -1,0 +1,102 @@
+---
+- name: Kube Setup
+  hosts: kube02
+  become: yes
+  tasks:
+  - name: whoami trigger
+    #ansible_become_user: root
+    #ansible_become_password: shivam  
+    shell: whoami
+    register: output
+    
+  - debug: var=output.stdout_lines
+
+  - name: Create a file with the name containerd.conf
+    shell: touch /etc/modules-load.d/containerd.conf
+
+  #- name:   Checking contents of file with the name containerd.conf
+  #  shell:  wc -l /etc/modules-load.d/containerd.conf | awk '{print $1}' 
+   # register: output2
+
+  - name: Add config for containerd
+    blockinfile:
+      path: "/etc/modules-load.d/containerd.conf"
+      block: |
+        overlay
+        br_netfilter
+  
+  - name: Create a file with the name kubernetes.conf
+    shell: touch /etc/sysctl.d/kubernetes.conf
+
+  - name: Add config for kubernetes.conf
+    blockinfile:
+      path: "/etc/sysctl.d/kubernetes.conf"
+      block: |
+        net.bridge.bridge-nf-call-ip6tables = 1
+        net.bridge.bridge-nf-call-iptables = 1
+        net.ipv4.ip_forward = 1
+  
+  - name: Run the commands to verify the changes
+    shell: |
+      sysctl --system
+      sysctl -p
+    register: output
+        
+  - debug: var=output.stdout_lines
+
+  - name: Run the commands to verify the changes
+    shell: |
+      for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+    register: output
+        
+  - debug: var=output.stdout_lines
+
+
+
+  - name: Set up Docker's apt repository
+    shell: |
+      apt-get update
+      apt-get install ca-certificates curl -y
+      install -m 0755 -d /etc/apt/keyrings
+      curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      chmod a+r /etc/apt/keyrings/docker.asc
+      echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      tee /etc/apt/sources.list.d/docker.list > /dev/null
+      apt-get update
+    register: output
+        
+  - debug: var=output.stdout_lines
+
+  - name: Install Docker 
+    shell: |
+      apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+    register: output
+    
+  - debug: var=output.stdout_lines
+
+  - name: swapoff,firewall
+    shell: |
+      swapoff -a 
+      sed -i '/swap/s/^\(.*\)$/#\1/g' /etc/fstab
+      systemctl stop firewalld.service
+      systemctl disable firewalld.service
+      systemctl start docker
+      systemctl enable docker
+    register: output
+  
+  - debug: var=output.stdout_lines
+
+  - name: Kubernetes setup
+    shell: |
+      apt-get update
+      apt-get install -y apt-transport-https ca-certificates curl gpg
+      curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+      apt-get update
+      apt-get install -y kubelet kubeadm kubectl -y
+      apt-mark hold kubelet kubeadm kubectl
+      systemctl enable --now kubelet
+    register: output
+  - debug: var=output.stdout_lines
