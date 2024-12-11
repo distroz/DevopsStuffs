@@ -1,6 +1,6 @@
 ---
 - name: Kube Setup
-  hosts: kube01
+  hosts: sonar01
   tasks:
   - name: sending public key
     copy:

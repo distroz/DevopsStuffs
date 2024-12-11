@@ -1,0 +1,36 @@
+---
+- name: Jenkins Setup
+  hosts: jenkins01
+  become: yes
+  tasks:
+  - name: keyring setup
+    shell: | 
+      sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+      https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+      
+      
+  - name: sources setup
+    shell: |    
+      echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+      https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+      /etc/apt/sources.list.d/jenkins.list > /dev/null
+
+  - name: update and install java, jenkins
+    shell: |
+      apt-get update
+      apt install fontconfig openjdk-17-jre -y
+      apt-get install jenkins -y
+    register: output
+    
+  - debug: var=output.stdout_lines
+  
+  - name: start and enable jenkins
+    shell: |
+      systemctl enable jenkins
+      systemctl start jenkins
+    register: output
+    
+  - debug: var=output.stdout_lines
+      
+
+    

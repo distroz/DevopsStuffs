@@ -1,0 +1,11 @@
+- name: authenticate
+    shell: multipass authenticate shivam
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: list vms
+    shell: multipass list
+    register: output
+
+  - debug: var=output.stdout_lines

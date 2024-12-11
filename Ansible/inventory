@@ -1,20 +1,34 @@
 all:
     hosts:
-        kube01:
-            ansible_host: 192.168.122.6
+        jenkins01:
+            ansible_host: 192.168.122.122
             
-        kube02:
-            ansible_host: 192.168.122.104
+        nexus01:
+            ansible_host: 192.168.122.168
+        
+        sonar01:
+            ansible_host: 192.168.122.228
+        
+        #kube02:
+            #ansible_host: 192.168.122.104
             
     
     children:
+        jenkinsservers:
+            hosts:
+                jenkins01:
+                
+        nexusservers:
+            hosts:
+                nexus01:
+        sonarservers:
+            hosts:
+                sonar01:
         kubeservers:
             hosts:
-                kube01:
-                kube02:
     vars:
         ansible_become_password: shivam
         ansible_connection: ssh   
         ansible_user: shivam
-        #ansible_ssh_pass: shivam
-        ansible_ssh_private_key_file: id_rsa
+        ansible_ssh_pass: shivam
+        #ansible_ssh_private_key_file: id_rsa

@@ -1,0 +1,155 @@
+---
+- name: setup sonarqube
+  hosts: sonar01
+  become: yes
+  tasks:   
+  - name: Install OpenJDK 11
+    shell: |
+      apt install openjdk-11-jdk -y
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: Install PostgreSQL-1
+    shell: |
+      curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/apt.postgresql.org.gpg >/dev/null
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: Install PostgreSQL-2
+    shell: |
+      sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: Install PostgreSQL-3
+    shell: |
+      apt update
+      apt install postgresql postgresql-contrib -y
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: Install PostgreSQL-4
+    shell: |
+      systemctl status postgresql
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  #- name: Configure PostgreSQL
+  #  shell: |
+  #    su - postgres psql
+  #    CREATE ROLE sonaruser WITH LOGIN ENCRYPTED PASSWORD 'sonaruser';
+  #    CREATE DATABASE sonarqube;
+  #    GRANT ALL PRIVILEGES ON DATABASE sonarqube to sonaruser;
+  #    \q
+  #    exit
+  #  register: output
+
+  #- debug: var=output.stdout_lines
+
+  #- name: Install Sonarqube
+  #  shell: |
+  #    wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-24.12.0.100206.zip
+  #    apt install unzip -y
+  #    unzip -q sonarqube-24.12.0.100206.zip
+  #    mkdir -p /opt/sonarqube
+  #    mv sonarqube-24.12.0.100206 /opt/sonarqube
+  #    rm sonarqube-24.12.0.100206.zip
+  #  register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: Create Sonarqube User
+    shell: |
+      adduser --system --no-create-home --group --disabled-login sonarqube
+      chown sonarqube:sonarqube /opt/sonarqube -R
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: Configure Sonarqube Server
+    shell: |
+      sed 's/#sonar.jdbc.username=/sonar.jdbc.username=sonaruser/' /opt/sonarqube/sonarqube-24.12.0.100206/conf/sonar.properties
+      sed 's/#sonar.jdbc.password=/sonar.jdbc.password=sonaruser/' /opt/sonarqube/sonarqube-24.12.0.100206/conf/sonar.properties
+      sed 's/#sonar.jdbc.url=jdbc:postgresql:\/\/localhost\/sonarqube?currentSchema=my_schema\/sonar.jdbc.url=jdbc:postgresql:\/\/localhost:5432\/sonarqube/' /opt/sonarqube/sonarqube-24.12.0.100206/conf/sonar.properties
+      sed 's/#sonar.web.javaAdditionalOpts=-server/sonar.web.javaAdditionalOpts=-server/' /opt/sonarqube/sonarqube-24.12.0.100206/conf/sonar.properties
+      sed 's/#sonar.web.host=0.0.0.0/sonar.web.host=127.0.0.1/' /opt/sonarqube/sonarqube-24.12.0.100206/conf/sonar.properties
+    register: output
+
+  - debug: var=output.stdout_lines
+
+  - name: Configure Sonarqube Server-2
+    blockinfile:
+      path: "/etc/sysctl.conf"
+      block: |
+        vm.max_map_count=524288
+        fs.file-max=131072
+    register: output
+
+  - debug: var=output.stdout_lines
+
+
+  - name: Configure Sonarqube Server-3
+    blockinfile:
+      path: "/etc/security/limits.d/99-sonarqube.conf"
+      create: true
+      block: |
+        sonarqube   -   nofile   131072
+        sonarqube   -   nproc    8192
+    register: output
+
+  - debug: var=output.stdout_lines
+
+
+  - name: reboot machine
+    reboot: 
+
+
+  - name: setup sonar service
+    blockinfile:
+      path: "/etc/systemd/system/sonarqube.service"
+      create: true
+      block: |
+        [Unit]
+        Description=SonarQube service
+        After=syslog.target network.target
+
+        [Service]
+        Type=forking
+
+        ExecStart=/opt/sonarqube/sonarqube-24.12.0.100206/bin/linux-x86-64/sonar.sh start
+        ExecStop=/opt/sonarqube/sonarqube-24.12.0.100206/bin/linux-x86-64/sonar.sh stop
+
+        User=sonarqube
+        Group=sonarqube
+        Restart=always
+
+        LimitNOFILE=65536
+        LimitNPROC=4096
+
+        [Install]
+        WantedBy=multi-user.target
+    register: output
+
+  - debug: var=output.stdout_lines
+
+
+  - name: sonar service enable
+    shell: |
+        systemctl enable sonarqube
+        systemctl start sonarqube
+        systemctl status sonarqube     
+    register: output
+
+  - debug: var=output.stdout_lines
+    
+
+
+    
+
+
+      
