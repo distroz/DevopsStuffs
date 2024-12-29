@@ -1,13 +1,13 @@
 all:
     hosts:
-        jenkins01:
-            ansible_host: 192.168.122.122
+        jenkins:
+            ansible_host: 192.168.122.90
             
         nexus01:
             ansible_host: 192.168.122.168
         
-        sonar01:
-            ansible_host: 192.168.122.228
+        sonar:
+            ansible_host: 192.168.122.119
         
         #kube02:
             #ansible_host: 192.168.122.104
@@ -16,14 +16,14 @@ all:
     children:
         jenkinsservers:
             hosts:
-                jenkins01:
+                jenkins:
                 
         nexusservers:
             hosts:
                 nexus01:
         sonarservers:
             hosts:
-                sonar01:
+                sonar:
         kubeservers:
             hosts:
     vars:

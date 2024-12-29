@@ -1,6 +1,6 @@
 ---
 - name: Jenkins Setup
-  hosts: jenkins01
+  hosts: jenkins
   become: yes
   tasks:
   - name: keyring setup
